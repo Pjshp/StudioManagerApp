@@ -1,0 +1,28 @@
+<form id="registerForm">
+    <input type="text" id="username" name="username" required>
+    <input type="email" id="email" name="email" required>
+    <input type="password" id="password" name="passwordHash" required>
+    <button type="button" onclick="submitForm()">Register</button>
+</form>
+<script>
+    function submitForm() {
+        const formData = {
+            username: document.getElementById('username').value,
+            email: document.getElementById('email').value,
+            passwordHash: document.getElementById('password').value
+        };
+        fetch('/register/user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        }).then(response => {
+            if (response.ok) {
+                alert('Registration successful!');
+            } else {
+                alert('Registration failed.');
+            }
+        });
+    }
+</script>
