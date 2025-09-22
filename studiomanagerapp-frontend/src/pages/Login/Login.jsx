@@ -6,7 +6,7 @@ import {request, setAuthToken, setUserData} from "../../components/Utils/axios_h
 
 const Login = () => {
 
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -14,8 +14,8 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
 
-        if (!username) {
-            setError("Wprowadź nazwę użytkownika!");
+        if (!email) {
+            setError("Wprowadź adres e-mail!");
             return;
         }
 
@@ -24,21 +24,29 @@ const Login = () => {
             return;
         }
 
-        setError("")
+        setError("");
 
         try {
-            const response = await request('POST', '/login', { username, password });
-            console.log("Received user data:", response.data);
-            const { token, id, username:name, email } = response.data;
+            const response = await request('POST', '/login', { email, password });
+            console.log("Otrzymano dane użytkownika:", response.data);
+            const { token, id, firstName, lastName, role } = response.data;
 
-            if(token) {
+            if (token) {
                 setAuthToken(token);
-                setUserData({ id, name, email });
-                navigate('/dashboard');
+                setUserData({ id, firstName, lastName, email, role });
+
+                // Redirect based on role
+                if (role === "ADMIN") {
+                    navigate('/admin/home');
+                } else if (role === "USER") {
+                    navigate('/user/home');
+                } else {
+                    navigate('/home'); // Default route
+                }
             }
         } catch (err) {
-            console.error("Błąd podczas logowania",  err.response || err);
-            setError("Nie udało się zalogować. Spróbuj ponownie.");
+            console.error("Błąd podczas logowania", err.response || err);
+            setError("Logowanie nie powiodło się. Spróbuj ponownie.");
         }
     };
 
@@ -53,10 +61,10 @@ const Login = () => {
 
                         <input
                             type="text"
-                            placeholder={"Nazwa użytkownika"}
+                            placeholder="Adres e-mail"
                             className="input-box"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                         />
 
                         <PasswordInput
@@ -66,12 +74,12 @@ const Login = () => {
 
                         {error && <p className="text-red-500 text-sm pb-1">{error}</p>}
 
-                        <button type="submit" className={"btn-primary"}>
-                            Zaloguj
+                        <button type="submit" className="btn-primary">
+                            Zaloguj się
                         </button>
 
                         <p className="text-sm text-center mt-4">
-                            Nie posiadasz konta?{" "}
+                            Nie masz konta?{" "}
                             <Link to="/signup" className="font-medium text-primary underline">
                                 Stwórz konto
                             </Link>

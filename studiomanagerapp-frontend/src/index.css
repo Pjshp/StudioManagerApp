@@ -22,7 +22,11 @@
     }
 
     .btn-primary {
-        @apply w-full text-sm bg-blue-500 text-white px-5 py-3 rounded mb-4 outline-none;
+        @apply w-full text-sm bg-[#4FB286] text-white px-5 py-3 rounded mb-4 outline-none;
+    }
+
+    .btn-primary:hover {
+        @apply bg-[#3D926A]; /* Darker shade for hover effect */
     }
 
     .icon-btn {
