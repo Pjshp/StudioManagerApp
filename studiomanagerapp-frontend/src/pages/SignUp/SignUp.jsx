@@ -7,26 +7,29 @@ import {request, setAuthToken, setUserData} from "../../components/Utils/axios_h
 
 const SignUp = () => {
 
-    const [username, setUsername] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const[error, setError] = useState(null);
-    const navigate = useNavigate()
+    const [phoneNumber, setPhoneNumber] = useState("");
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     const handleSignUp = async (e) => {
         e.preventDefault();
-        if (!username) {
-            setError("Wprowadź nazwę użytkownika!");
+
+        if (!firstName) {
+            setError("Wprowadź swoje imię!");
             return;
         }
 
-        if (!/^[a-zA-Z](?!.* {2})[a-zA-Z0-9_.\- ]{2,14}$/.test(username) || /^[a-zA-Z0-9_.\-]* $/.test(username)) {
-            setError("Wprowadź poprawną nazwę użytkownika! Długość od 3 do 15 znaków, w tym cyfry oraz jednen ze znaków specjalnych: '.' '-' '_', pierwszy znak musi być literą, niedozwolone są dwie spacje pod rząd!");
+        if (!lastName) {
+            setError("Wprowadź swoje nazwisko!");
             return;
         }
 
         if (!validateEmail(email)) {
-            setError("Wprowadź poprawny adres email!");
+            setError("Wprowadź poprawny adres e-mail!");
             return;
         }
 
@@ -40,21 +43,35 @@ const SignUp = () => {
             return;
         }
 
-        setError("")
+        if (!phoneNumber) {
+            setError("Wprowadź swój numer telefonu!");
+            return;
+        }
+
+        setError("");
 
         try {
-            const response = await request('POST', '/register', { username, email, password });
-            const { token, id, username:name, email:mail } = response.data;
-            if(token) {
+            const response = await request('POST', '/register', { firstName, lastName, email, password, phoneNumber });
+            const { token, id, firstName: fName, lastName: lName, email: mail, role } = response.data;
+
+            if (token) {
                 setAuthToken(token);
-                setUserData({ id, name, mail });
-                navigate('/dashboard');
+                setUserData({ id, fName, lName, mail, role });
+
+                // Redirect based on role
+                if (role === "ADMIN") {
+                    navigate('/admin/home');
+                } else if (role === "USER") {
+                    navigate('/user/home');
+                } else {
+                    navigate('/home'); // Default route
+                }
             }
         } catch (err) {
-            console.error("Błąd podczas rejestracji",  err.response || err);
-            setError("Nie udało się zarejestrować. Spróbuj ponownie.");
+            console.error("Błąd podczas rejestracji", err.response || err);
+            setError("Rejestracja nie powiodła się. Spróbuj ponownie.");
         }
-    }
+    };
 
     return (
         <>
@@ -67,15 +84,23 @@ const SignUp = () => {
 
                         <input
                             type="text"
-                            placeholder={"Nazwa użytkownika"}
+                            placeholder="Imię"
                             className="input-box"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
                         />
 
                         <input
                             type="text"
-                            placeholder={"Email"}
+                            placeholder="Nazwisko"
+                            className="input-box"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                        />
+
+                        <input
+                            type="text"
+                            placeholder="Adres e-mail"
                             className="input-box"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -86,10 +111,18 @@ const SignUp = () => {
                             onChange={(e) => setPassword(e.target.value)}
                         />
 
+                        <input
+                            type="text"
+                            placeholder="Numer telefonu"
+                            className="input-box"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                        />
+
                         {error && <p className="text-red-500 text-sm pb-1">{error}</p>}
 
-                        <button type="submit" className={"btn-primary"}>
-                            Utwórz konto
+                        <button type="submit" className="btn-primary">
+                            Stwórz konto
                         </button>
 
                         <p className="text-sm text-center mt-4">
@@ -98,12 +131,11 @@ const SignUp = () => {
                                 Zaloguj się
                             </Link>
                         </p>
-
                     </form>
                 </div>
             </div>
         </>
     );
-}
+};
 
 export default SignUp;
