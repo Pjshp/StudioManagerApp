@@ -12,6 +12,7 @@ const SignUp = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
+    const [birthDate, setBirthDate] = useState("");
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
@@ -46,17 +47,28 @@ const SignUp = () => {
         if (!phoneNumber) {
             setError("Wprowadź swój numer telefonu!");
             return;
+        } else if (!/^\d{9}$/.test(phoneNumber)) {
+            setError("Numer telefonu musi składać się z 9 cyfr!");
+            return;
+        }
+
+        if (!birthDate) {
+            setError("Wprowadź swoją datę urodzenia!");
+            return;
+        } else if (birthDate.length !== 5 || birthDate[2] !== '-') {
+            setError("Data urodzenia musi być w formacie DD-MM!");
+            return;
         }
 
         setError("");
 
         try {
-            const response = await request('POST', '/register', { firstName, lastName, email, password, phoneNumber });
-            const { token, id, firstName: fName, lastName: lName, email: mail, role } = response.data;
+            const response = await request('POST', '/register', { firstName, lastName, email, password, phoneNumber, birthDate});
+            const { token, id, firstName: fName, lastName: lName, email: mail, role} = response.data;
 
             if (token) {
                 setAuthToken(token);
-                setUserData({ id, fName, lName, mail, role });
+                setUserData({ id, fName, lName, mail, role});
 
                 // Redirect based on role
                 if (role === "ADMIN") {
@@ -117,6 +129,14 @@ const SignUp = () => {
                             className="input-box"
                             value={phoneNumber}
                             onChange={(e) => setPhoneNumber(e.target.value)}
+                        />
+
+                        <input
+                            type="text"
+                            placeholder="Data urodzin (DD-MM)"
+                            className="input-box"
+                            value={birthDate}
+                            onChange={(e) => setBirthDate(e.target.value)}
                         />
 
                         {error && <p className="text-red-500 text-sm pb-1">{error}</p>}
