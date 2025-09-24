@@ -29,6 +29,14 @@
         @apply bg-[#3D926A]; /* Darker shade for hover effect */
     }
 
+    .btn-secondary {
+        @apply w-full text-sm bg-gray-300 text-gray-700 px-5 py-3 rounded mb-4 outline-none;
+    }
+
+    .btn-secondary:hover {
+        @apply bg-gray-400;
+    }
+
     .icon-btn {
         @apply text-xl text-slate-300 cursor-pointer hover:text-primary;
     }

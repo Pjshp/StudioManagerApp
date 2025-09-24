@@ -1,4 +1,4 @@
-import Navbar from '../../components/Navbar/NavBar.jsx';
+import Navbar from '../../components/NavBar/AdminNavBar.jsx';
 import {Link, useNavigate} from "react-router-dom";
 import PasswordInput from "../../components/Input/PasswordInput.jsx";
 import {useState} from "react";

@@ -1,8 +1,12 @@
 package com.example.studiomanagerapp_backend.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum PassType {
     FOUR_CLASSES(4, 100, 56),
-    EIGHT_CLASSES(8, 160, 84);
+    EIGHT_CLASSES(8, 160, 84),
+    TWELVE_CLASSES(12, 200, 112);
 
     private final int numberOfClasses;
     private final int price;

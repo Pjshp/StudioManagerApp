@@ -1,4 +1,4 @@
-import NavBar from "../../components/NavBar/NavBar.jsx";
+import UserNavBar from "../../components/NavBar/UserNavBar.jsx";
 import NoteCard from "../../components/Cards/NoteCard.jsx";
 import AddEditMassageModal from "../../components/Modals/AddEditMassageModal.jsx";
 import ManageUsersModal from "../../components/Modals/ManageUsersModal.jsx";
@@ -43,9 +43,7 @@ const Home = () => {
         }
     };
 
-    const parseDate = (date) => {
-        return dayjs(date).format("D MMMM YYYY, HH:mm");
-    };
+    const parseDate = (date) => dayjs(date).format("D MMMM YYYY, HH:mm");
 
     const sortAndSetMassages = (massagesArray, order = "desc") => {
         const sortedMassages = massagesArray.sort((a, b) => {
@@ -60,71 +58,28 @@ const Home = () => {
         setSortOrder((prevOrder) => (prevOrder === "desc" ? "asc" : "desc"));
     };
 
+    // Przykładowe callbacki dla przycisków UserNavBar
+    const handleOpenCalendar = () => {
+        console.log("Otwórz Kalendarz zajęć");
+    };
+    const handleSendMessage = () => {
+        console.log("Wyślij wiadomość");
+    };
+    const handleMyPasses = () => {
+        console.log("Moje karnety");
+    };
+    const handleGiveFeedback = () => {
+        console.log("Wystaw opinię");
+    };
+
     return (
         <>
-            <NavBar
-                onSearch={setMassages}
-                onSortChange={handleSortChange}
-                sortOrder={sortOrder}
-                onManageReservations={() => {}} // Placeholder
-                onManageUsers={() => setOpenManageUsersModal({ isShown: true })}
-                onOpenAddEditModal={setOpenAddEditModal}
+            <UserNavBar
+                onOpenCalendar={handleOpenCalendar}
+                onSendMessage={handleSendMessage}
+                onMyPasses={handleMyPasses}
+                onGiveFeedback={handleGiveFeedback}
             />
-            <div className="container mx-auto">
-                <div className="grid grid-cols-3 gap-4 mt-0">
-                    {massages.map((massage) => (
-                        <NoteCard
-                            key={massage.id}
-                            title={massage.name}
-                            date={parseDate(massage.createdAt)}
-                            content={massage.description}
-                            mood={massage.type}
-                            pinned={false}
-                            onEdit={() => {
-                                setOpenAddEditModal({
-                                    isShown: true,
-                                    type: "edit",
-                                    data: massage,
-                                });
-                            }}
-                            onDelete={() => handleDeleteMassage(massage.id)}
-                        />
-                    ))}
-                </div>
-            </div>
-
-            <Modal
-                isOpen={openAddEditModal.isShown}
-                onRequestClose={() => setOpenAddEditModal({ isShown: false, type: "add", data: null })}
-                style={{
-                    overlay: { backgroundColor: "rgba(0,0,0,0.2)" },
-                }}
-                contentLabel="Add/Edit Massage"
-                className="w-[40%] max-h-3/4 bg-white rounded-lg mx-auto mt-14 p-5 overflow-scroll"
-            >
-                <AddEditMassageModal
-                    type={openAddEditModal.type}
-                    massage={openAddEditModal.data}
-                    onClose={() => {
-                        setOpenAddEditModal({ isShown: false, type: "add", data: null });
-                        fetchMassages();
-                    }}
-                />
-            </Modal>
-
-            <Modal
-                isOpen={openManageUsersModal.isShown}
-                onRequestClose={() => setOpenManageUsersModal({ isShown: false })}
-                style={{
-                    overlay: { backgroundColor: "rgba(0,0,0,0.2)" },
-                }}
-                contentLabel="Manage Users"
-                className="w-[40%] max-h-3/4 bg-white rounded-lg mx-auto mt-14 p-5 overflow-scroll"
-            >
-                <ManageUsersModal
-                    onClose={() => setOpenManageUsersModal({ isShown: false })}
-                />
-            </Modal>
         </>
     );
 };

@@ -1,7 +1,8 @@
-import NavBar from "../../components/NavBar/NavBar.jsx";
+import AdminNavBar from "../../components/NavBar/AdminNavBar.jsx";
 import NoteCard from "../../components/Cards/NoteCard.jsx";
 import AddEditMassageModal from "../../components/Modals/AddEditMassageModal.jsx";
 import ManageUsersModal from "../../components/Modals/ManageUsersModal.jsx";
+import ManagePassesModal from "../../components/Modals/ManagePassesModal.jsx"; // 🔹 import nowego modala
 import { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { request } from "../../components/Utils/axios_helper.jsx";
@@ -18,6 +19,9 @@ const AdminHome = () => {
         data: null,
     });
     const [openManageUsersModal, setOpenManageUsersModal] = useState({
+        isShown: false,
+    });
+    const [openManagePassesModal, setOpenManagePassesModal] = useState({ // 🔹 stan do karnetów
         isShown: false,
     });
 
@@ -37,7 +41,9 @@ const AdminHome = () => {
     const handleDeleteMassage = async (id) => {
         try {
             await request("delete", `api/massages/${id}`);
-            setMassages((prevMassages) => prevMassages.filter((massage) => massage.id !== id));
+            setMassages((prevMassages) =>
+                prevMassages.filter((massage) => massage.id !== id)
+            );
         } catch (err) {
             console.error("Error deleting massage", err.response || err);
         }
@@ -62,14 +68,20 @@ const AdminHome = () => {
 
     return (
         <>
-            <NavBar
+            <AdminNavBar
                 onSearch={setMassages}
                 onSortChange={handleSortChange}
                 sortOrder={sortOrder}
                 onManageReservations={() => {}} // Placeholder
                 onManageUsers={() => setOpenManageUsersModal({ isShown: true })}
                 onOpenAddEditModal={setOpenAddEditModal}
+                onManagePasses={() => setOpenManagePassesModal({ isShown: true })} // 🔹 otwieranie modala
+                onManageAvailability={() => console.log("Kliknięto: Dostępność kadry")}
+                onManageActivities={() => console.log("Kliknięto: Aktywności")}
+                onManageEvents={() => console.log("Kliknięto: Wydarzenia")}
+                onManageRooms={() => console.log("Kliknięto: Pomieszczenia")}
             />
+
             <div className="container mx-auto">
                 <div className="grid grid-cols-3 gap-4 mt-0">
                     {massages.map((massage) => (
@@ -93,9 +105,12 @@ const AdminHome = () => {
                 </div>
             </div>
 
+            {/* 🔹 Modal dodawania/edycji masaży */}
             <Modal
                 isOpen={openAddEditModal.isShown}
-                onRequestClose={() => setOpenAddEditModal({ isShown: false, type: "add", data: null })}
+                onRequestClose={() =>
+                    setOpenAddEditModal({ isShown: false, type: "add", data: null })
+                }
                 style={{
                     overlay: { backgroundColor: "rgba(0,0,0,0.2)" },
                 }}
@@ -112,6 +127,7 @@ const AdminHome = () => {
                 />
             </Modal>
 
+            {/* 🔹 Modal zarządzania użytkownikami */}
             <Modal
                 isOpen={openManageUsersModal.isShown}
                 onRequestClose={() => setOpenManageUsersModal({ isShown: false })}
@@ -123,6 +139,21 @@ const AdminHome = () => {
             >
                 <ManageUsersModal
                     onClose={() => setOpenManageUsersModal({ isShown: false })}
+                />
+            </Modal>
+
+            {/* 🔹 Modal zarządzania karnetami */}
+            <Modal
+                isOpen={openManagePassesModal.isShown}
+                onRequestClose={() => setOpenManagePassesModal({ isShown: false })}
+                style={{
+                    overlay: { backgroundColor: "rgba(0,0,0,0.2)" },
+                }}
+                contentLabel="Manage Passes"
+                className="w-[60%] max-h-3/4 bg-white rounded-lg mx-auto mt-14 p-5 overflow-scroll"
+            >
+                <ManagePassesModal
+                    onClose={() => setOpenManagePassesModal({ isShown: false })}
                 />
             </Modal>
         </>

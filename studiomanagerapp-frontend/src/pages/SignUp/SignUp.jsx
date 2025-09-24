@@ -1,5 +1,5 @@
 import {useState} from "react";
-import Navbar from "../../components/NavBar/NavBar.jsx";
+import Navbar from "../../components/NavBar/AdminNavBar.jsx";
 import PasswordInput from "../../components/Input/PasswordInput.jsx";
 import {Link, useNavigate} from "react-router-dom";
 import {validateEmail} from "../../components/Utils/helper.jsx";
