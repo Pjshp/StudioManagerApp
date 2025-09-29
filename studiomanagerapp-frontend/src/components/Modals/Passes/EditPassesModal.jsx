@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { request } from "../Utils/axios_helper.jsx";
-import dayjs from "dayjs";
+import { request } from "../../Utils/axios_helper.jsx";
 
-const AddPassModal = ({ onClose, onPassAdded }) => {
+const EditPassModal = ({ passData, onClose, onPassUpdated }) => {
     const [formData, setFormData] = useState({
         userId: "",
         passType: "",
@@ -14,8 +13,21 @@ const AddPassModal = ({ onClose, onPassAdded }) => {
 
     const [users, setUsers] = useState([]);
     const [passTypes, setPassTypes] = useState([]);
-    const [error, setError] = useState(null);
 
+    // Załaduj dane początkowe do formularza
+    useEffect(() => {
+        if (passData) {
+            setFormData({
+                userId: passData.user?.id || "",
+                passType: passData.passType || "",
+                classesLeft: passData.classesLeft || "",
+                purchaseDate: passData.purchaseDate || "",
+                expiryDate: passData.expiryDate || "",
+            });
+        }
+    }, [passData]);
+
+    // Pobierz użytkowników
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -25,9 +37,11 @@ const AddPassModal = ({ onClose, onPassAdded }) => {
                 console.error("Error fetching users", err);
             }
         };
+
         fetchUsers();
     }, []);
 
+    // Pobierz typy karnetów
     useEffect(() => {
         const fetchPassTypes = async () => {
             try {
@@ -37,14 +51,18 @@ const AddPassModal = ({ onClose, onPassAdded }) => {
                 console.error("Error fetching pass types", err);
             }
         };
+
         fetchPassTypes();
     }, []);
 
+    // Obsługa zmian w formularzu
     const handleChange = (e) => {
         const { name, value } = e.target;
+
         setFormData((prev) => ({ ...prev, [name]: value }));
 
-        if (name === "type") {
+        // Jeśli wybieramy typ karnetu → ustaw liczbę wejść
+        if (name === "passType") {
             const selectedType = passTypes.find((pt) => pt.name === value);
             if (selectedType) {
                 setFormData((prev) => ({
@@ -55,8 +73,9 @@ const AddPassModal = ({ onClose, onPassAdded }) => {
             }
         }
 
-        if (name === "startDate" && formData.type) {
-            const selectedType = passTypes.find((pt) => pt.name === formData.type);
+        // Jeśli ustawiamy datę rozpoczęcia → wylicz datę końcową
+        if (name === "purchaseDate" && formData.passType) {
+            const selectedType = passTypes.find((pt) => pt.name === formData.passType);
             if (selectedType) {
                 const start = new Date(value);
                 const end = new Date(start);
@@ -71,45 +90,29 @@ const AddPassModal = ({ onClose, onPassAdded }) => {
         }
     };
 
+    // Obsługa zapisu zmian
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(null);
-
-        if (!formData.passType || !formData.userId) {
-            setError("Wybierz użytkownika i typ karnetu");
-            return;
-        }
 
         try {
-            // Sprawdź istniejące karnety użytkownika
-            const res = await request("get", `/api/passes?userId=${formData.userId}`);
-            const activePass = res.data.find((pass) =>
-                pass.classesLeft > 0 || dayjs(pass.expiryDate).isAfter(dayjs())
-            );
+            await request("put", `/api/passes/${passData.id}`, formData);
 
-            if (activePass) {
-                setError(
-                    "Użytkownik ma już aktywny karnet (pozostałe wejścia > 0 lub ważność nie minęła)"
-                );
-                return;
-            }
-
-            // Dodaj nowy karnet
-            await request("post", "/api/passes", formData);
-            if (onPassAdded) onPassAdded();
-            onClose();
+            if (onPassUpdated) onPassUpdated(); // odśwież listę
+            onClose(); // zamknij modal
         } catch (err) {
-            console.error("Error adding pass", err.response || err);
-            setError("Nie udało się dodać karnetu. Spróbuj ponownie.");
+            console.error("Error updating pass", err.response || err);
         }
     };
 
     return (
         <div>
-            <h2 className="text-xl font-bold mb-4">Dodaj karnet</h2>
-            {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+            <h2 className="text-xl font-bold mb-4">Edytuj karnet</h2>
+
             <form onSubmit={handleSubmit} className="space-y-4">
-                <label className="block text-sm font-medium text-gray-700">Użytkownik</label>
+                {/* Użytkownik */}
+                <label className="block text-sm font-medium text-gray-700">
+                    Użytkownik
+                </label>
                 <select
                     name="userId"
                     value={formData.userId}
@@ -117,7 +120,9 @@ const AddPassModal = ({ onClose, onPassAdded }) => {
                     className="w-full border rounded p-2"
                     required
                 >
-                    <option value="" disabled>Wybierz użytkownika</option>
+                    <option value="" disabled>
+                        Wybierz użytkownika
+                    </option>
                     {users.map((user) => (
                         <option key={user.id} value={user.id}>
                             {user.firstName} {user.lastName} ({user.email})
@@ -125,62 +130,83 @@ const AddPassModal = ({ onClose, onPassAdded }) => {
                     ))}
                 </select>
 
-                <label className="block text-sm font-medium text-gray-700">Rodzaj karnetu</label>
+                {/* Typ karnetu */}
+                <label className="block text-sm font-medium text-gray-700">
+                    Rodzaj karnetu
+                </label>
                 <select
-                    name="type"
+                    name="passType"
                     value={formData.passType}
                     onChange={handleChange}
                     className="w-full border rounded p-2"
                     required
                 >
-                    <option value="" disabled>Wybierz typ karnetu</option>
+                    <option value="" disabled>
+                        Wybierz typ karnetu
+                    </option>
                     {passTypes.map((pt) => (
-                        <option key={pt.name} value={pt.name}>{pt.name}</option>
+                        <option key={pt.name} value={pt.name}>
+                            {pt.name}
+                        </option>
                     ))}
                 </select>
 
-                <label className="block text-sm font-medium text-gray-700">Liczba wejść</label>
+                {/* Liczba wejść */}
+                <label className="block text-sm font-medium text-gray-700">
+                    Liczba wejść
+                </label>
                 <input
                     type="number"
-                    name="entries"
+                    name="classesLeft"
+                    placeholder="Liczba wejść"
                     value={formData.classesLeft}
+                    onChange={handleChange}
                     className="w-full border rounded p-2"
                     readOnly
                 />
 
-                <label className="block text-sm font-medium text-gray-700">Data rozpoczęcia</label>
+                {/* Data rozpoczęcia */}
+                <label className="block text-sm font-medium text-gray-700">
+                    Data rozpoczęcia
+                </label>
                 <input
                     type="date"
-                    name="startDate"
+                    name="purchaseDate"
                     value={formData.purchaseDate}
                     onChange={handleChange}
                     className="w-full border rounded p-2"
                     required
                 />
 
-                <label className="block text-sm font-medium text-gray-700">Data ważności</label>
+                {/* Data ważności */}
+                <label className="block text-sm font-medium text-gray-700">
+                    Data ważności
+                </label>
                 <input
                     type="date"
-                    name="endDate"
+                    name="expiryDate"
                     value={formData.expiryDate}
+                    onChange={handleChange}
                     className="w-full border rounded p-2"
-                    readOnly
+                    required
                 />
 
+                {/* Przyciski */}
                 <div className="flex justify-end gap-2">
                     <button type="button" onClick={onClose} className="btn-secondary">
                         Anuluj
                     </button>
-                    <button className="btn-primary">Dodaj</button>
+                    <button className="btn-primary">Zapisz</button>
                 </div>
             </form>
         </div>
     );
 };
 
-AddPassModal.propTypes = {
+EditPassModal.propTypes = {
+    passData: PropTypes.object.isRequired,
     onClose: PropTypes.func.isRequired,
-    onPassAdded: PropTypes.func,
+    onPassUpdated: PropTypes.func,
 };
 
-export default AddPassModal;
+export default EditPassModal;

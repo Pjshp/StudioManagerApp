@@ -78,4 +78,11 @@ public class UserService {
             throw new AppException("Podano nieprawidłową rolę: " + newRole, HttpStatus.BAD_REQUEST);
         }
     }
+
+    public void deleteUser(Integer userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new IllegalArgumentException("User not found");
+        }
+        userRepository.deleteById(userId);
+    }
 }

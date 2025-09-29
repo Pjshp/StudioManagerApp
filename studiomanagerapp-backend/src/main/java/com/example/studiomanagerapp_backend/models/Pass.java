@@ -1,10 +1,8 @@
 package com.example.studiomanagerapp_backend.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -12,6 +10,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 @Data
+@ToString(exclude = "user")
+@EqualsAndHashCode(exclude = "user")
 @Entity
 @Table(name = "Passes")
 public class Pass {
@@ -35,5 +35,6 @@ public class Pass {
 
     @ManyToOne
     @JoinColumn(name = "UserId", nullable = false) // Klucz obcy do tabeli Users
+    @JsonBackReference
     private User user; // Użytkownik, do którego należy karnet
 }

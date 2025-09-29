@@ -22,11 +22,11 @@
     }
 
     .btn-primary {
-        @apply w-full text-sm bg-[#4FB286] text-white px-5 py-3 rounded mb-4 outline-none;
+        @apply inline-flex text-sm bg-[#4FB286] text-white px-5 py-3 rounded mb-4 outline-none justify-center;
     }
 
     .btn-primary:hover {
-        @apply bg-[#3D926A]; /* Darker shade for hover effect */
+        @apply bg-[#3D926A]; /* ciemniejszy odcień po najechaniu */
     }
 
     .btn-secondary {

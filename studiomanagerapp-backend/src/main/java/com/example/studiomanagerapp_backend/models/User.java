@@ -1,10 +1,8 @@
 package com.example.studiomanagerapp_backend.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import jakarta.validation.constraints.Pattern;
 
 import java.time.MonthDay;
@@ -15,6 +13,8 @@ import java.util.List;
 @Builder
 @Data
 @Entity
+@ToString(exclude = "passes")
+@EqualsAndHashCode(exclude = "passes")
 @Table(name = "Users") // Ustawienie nazwy tabeli w bazie danych
 public class User {
     @Id
@@ -49,4 +49,9 @@ public class User {
     @Column(name = "Role", nullable = false)
     @Enumerated(EnumType.STRING) // Przechowywanie roli jako stringa
     private Role role; // Rola użytkownika
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Pass> passes;
+
 }

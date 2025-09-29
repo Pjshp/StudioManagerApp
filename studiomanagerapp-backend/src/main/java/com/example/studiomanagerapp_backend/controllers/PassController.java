@@ -24,7 +24,24 @@ public class PassController {
     }
 
     @GetMapping
-    public List<PassDto> getAllPasses() {
+    public List<PassDto> getAllPasses(@RequestParam(value = "userId", required = false) Integer userId) {
+        if (userId != null) {
+            return passService.getPassesByUser(userId);
+        }
         return passService.getAllPasses();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PassDto> updatePass(
+            @PathVariable Integer id,
+            @RequestBody PassDto passDto) {
+        PassDto updatedPass = passService.updatePass(id, passDto);
+        return ResponseEntity.ok(updatedPass);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePass(@PathVariable Integer id) {
+        passService.deletePass(id);
+        return ResponseEntity.noContent().build();
     }
 }

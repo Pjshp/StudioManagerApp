@@ -32,4 +32,10 @@ public class UserController {
             return ResponseEntity.badRequest().body("Nie udało się zaktualizować roli użytkownika: " + e.getMessage());
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -1,8 +1,8 @@
 import ProfileInfo from "../Cards/ProfileInfo";
 import { useNavigate } from "react-router-dom";
-import { getAuthToken, setAuthToken, setUserData } from "../Utils/axios_helper.jsx";
+import {getAuthToken, getUserData, setAuthToken, setUserData} from "../Utils/axios_helper.jsx";
 import PropTypes from "prop-types";
-import { useUser } from "../Context/UserContext.jsx";
+import {useEffect, useState} from "react";
 
 const UserNavBar = ({
                         onOpenCalendar,
@@ -12,7 +12,15 @@ const UserNavBar = ({
                     }) => {
     const navigate = useNavigate();
     const token = getAuthToken();
-    const { user } = useUser(); // tylko kontekst, bez lokalnego useState
+    const [loggedUser, setUser] = useState(null);
+
+    useEffect(() => {
+        let loggedUser = getUserData();
+        if (loggedUser?.data) { // jeśli zapisano { data: {...}, token: ... }
+            loggedUser = loggedUser.data;
+        }
+        setUser(loggedUser);
+    }, []);
 
     const onLogout = () => {
         setAuthToken(null);
@@ -42,10 +50,12 @@ const UserNavBar = ({
                     </div>
 
                     <div className="flex flex-col items-end ml-4">
-                        {user && (
+                        {loggedUser ? (
                             <p className="text-sm text-gray-500">
-                                Zalogowany jako: {user.firstName} {user.lastName}
+                                Zalogowany jako: {loggedUser.firstName || ""} {loggedUser.lastName || ""}
                             </p>
+                        ) : (
+                            <p className="text-sm text-gray-500">Brak zalogowanego użytkownika</p>
                         )}
                         <ProfileInfo onLogout={onLogout} />
                     </div>
