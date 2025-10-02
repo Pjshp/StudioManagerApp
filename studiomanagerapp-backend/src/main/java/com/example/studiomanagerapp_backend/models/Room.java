@@ -21,14 +21,11 @@ public class Room {
     @Column(name = "Name", nullable = false, length = 1)
     private String name;
 
-    @Column(name = "Location", nullable = false, length = 100)
-    private String location;
+    @Column(name = "Location", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Locations location;
 
     @Column(name = "RoomType", nullable = false)
     @Enumerated(EnumType.STRING)
     private RoomType roomType; // Typ pokoju
-
-    @ManyToOne
-    @JoinColumn(name = "EventId", nullable = false)
-    private Event event;
 }

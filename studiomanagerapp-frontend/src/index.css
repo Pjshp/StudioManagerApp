@@ -45,6 +45,22 @@
         @apply text-xs text-slate-400;
     }
 
+    /* overlay modal */
+    .modal-overlay {
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+
+    /* content modal */
+    .modal-content {
+        width: 60%;
+        max-height: 80%;
+        margin: auto;
+        padding: 20px;
+        border-radius: 0.5rem;
+        overflow: auto;
+        background-color: white; /* ważne, żeby modal miał tło */
+    }
+
 }
 
 

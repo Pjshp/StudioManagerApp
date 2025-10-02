@@ -2,13 +2,13 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { request } from "../../Utils/axios_helper.jsx";
 
-const AddRoomModal = ({ onClose, onRoomAdded }) => {
-    const [name, setName] = useState("");
-    const [location, setLocation] = useState(""); // enum string
-    const [roomType, setRoomType] = useState("");
+const EditRoomModal = ({ roomData, onClose, onRoomUpdated }) => {
+    const [name, setName] = useState(roomData.name || "");
+    const [location, setLocation] = useState(roomData.location || "");
+    const [roomType, setRoomType] = useState(roomData.roomType || "");
     const [error, setError] = useState(null);
 
-    // Hardcoded lista lokalizacji z enuma (możesz pobierać z backendu jeśli wolisz)
+    // 🔹 Te same enumy co w AddRoomModal
     const LOCATIONS = [
         { value: "WOJSKA_POLSKIEGO_23_BDG", label: "ul. Wojska Polskiego 23, Bydgoszcz" },
         { value: "DWORCOWA_15_BDG", label: "ul. Dworcowa 15, Bydgoszcz" }
@@ -22,25 +22,26 @@ const AddRoomModal = ({ onClose, onRoomAdded }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await request("post", "api/rooms", {
+            await request("put", `api/rooms/${roomData.id}`, {
                 name,
-                location,   // wysyłamy np. "WOJSKA_POLSKIEGO_23_BDG"
+                location,  // np. "WOJSKA_POLSKIEGO_23_BDG"
                 roomType,
             });
-            onRoomAdded();
+            onRoomUpdated();
             onClose();
         } catch (err) {
-            setError("Nie udało się dodać pokoju");
+            setError("Nie udało się zaktualizować pokoju");
             console.error(err);
         }
     };
 
     return (
         <div>
-            <h2 className="text-xl font-bold mb-4">Dodaj pokój</h2>
+            <h2 className="text-xl font-bold mb-4">Edytuj pokój</h2>
             {error && <p className="text-red-500 text-sm">{error}</p>}
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                {/* Nazwa */}
                 <div>
                     <label className="input-label">Nazwa pokoju</label>
                     <input
@@ -52,6 +53,7 @@ const AddRoomModal = ({ onClose, onRoomAdded }) => {
                     />
                 </div>
 
+                {/* Lokalizacja */}
                 <div>
                     <label className="input-label">Lokalizacja</label>
                     <select
@@ -69,6 +71,7 @@ const AddRoomModal = ({ onClose, onRoomAdded }) => {
                     </select>
                 </div>
 
+                {/* Typ pokoju */}
                 <div>
                     <label className="input-label">Typ pokoju</label>
                     <select
@@ -86,12 +89,13 @@ const AddRoomModal = ({ onClose, onRoomAdded }) => {
                     </select>
                 </div>
 
+                {/* Przyciski */}
                 <div className="flex justify-end gap-2">
                     <button type="button" className="btn-secondary" onClick={onClose}>
                         Anuluj
                     </button>
                     <button type="submit" className="btn-primary">
-                        Zapisz
+                        Zapisz zmiany
                     </button>
                 </div>
             </form>
@@ -99,9 +103,15 @@ const AddRoomModal = ({ onClose, onRoomAdded }) => {
     );
 };
 
-AddRoomModal.propTypes = {
+EditRoomModal.propTypes = {
+    roomData: PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        name: PropTypes.string,
+        location: PropTypes.string,
+        roomType: PropTypes.string,
+    }).isRequired,
     onClose: PropTypes.func.isRequired,
-    onRoomAdded: PropTypes.func.isRequired,
+    onRoomUpdated: PropTypes.func.isRequired,
 };
 
-export default AddRoomModal;
+export default EditRoomModal;

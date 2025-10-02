@@ -5,87 +5,55 @@ import Modal from "react-modal";
 import AdminNavBar from "../../components/NavBar/AdminNavBar.jsx";
 import ManageUsersModal from "../../components/Modals/Users/ManageUsersModal.jsx";
 import ManagePassesModal from "../../components/Modals/Passes/ManagePassesModal.jsx";
-
-Modal.setAppElement("#root");
+import ManageActivitiesModal from "../../components/Modals/Activities/ManageActivitiesModal.jsx";
+import ManageRoomsModal from "../../components/Modals/Rooms/ManageRoomsModal.jsx";
 
 const AdminHome = () => {
-    const [openManageUsersModal, setOpenManageUsersModal] = useState({
-        isShown: false,
-    });
-
-    const [openManagePassesModal, setOpenManagePassesModal] = useState({
-        isShown: false,
-    });
+    const [openManageUsersModal, setOpenManageUsersModal] = useState(false);
+    const [openManagePassesModal, setOpenManagePassesModal] = useState(false);
+    const [openManageActivitiesModal, setOpenManageActivitiesModal] = useState(false);
+    const [openManageRoomsModal, setOpenManageRoomsModal] = useState(false);
 
     const navigate = useNavigate();
 
+    const modalStyle = {
+        overlay: { backgroundColor: "rgba(0,0,0,0.2)" },
+        content: {
+            width: "60%",
+            maxHeight: "80%",
+            margin: "auto",
+            padding: "20px",
+            borderRadius: "0.5rem",
+            overflow: "auto",
+        },
+    };
+
+    const renderModal = (Component, isOpen, setIsOpen, extraProps = {}) => (
+        <Modal
+            isOpen={isOpen}
+            onRequestClose={() => setIsOpen(false)}
+            style={modalStyle}
+        >
+            <Component onClose={() => setIsOpen(false)} {...extraProps} />
+        </Modal>
+    );
+
     return (
         <>
-            {/* 🔹 Pasek nawigacyjny admina */}
             <AdminNavBar
-                onManageUsers={() => setOpenManageUsersModal({ isShown: true })}
-                onManagePasses={() => setOpenManagePassesModal({ isShown: true })}
+                onManageUsers={() => setOpenManageUsersModal(true)}
+                onManagePasses={() => setOpenManagePassesModal(true)}
                 onManageAvailability={() => console.log("Kliknięto: Dostępność kadry")}
-                onManageActivities={() => console.log("Kliknięto: Aktywności")}
+                onManageActivities={() => setOpenManageActivitiesModal(true)}
                 onManageEvents={() => navigate("/admin/events")}
-                onManageRooms={() => console.log("Kliknięto: Pomieszczenia")}
+                onManageRooms={() => setOpenManageRoomsModal(true)}
             />
 
-            {/* 🔹 Modal zarządzania użytkownikami */}
-            <Modal
-                isOpen={openManageUsersModal.isShown}
-                onRequestClose={() => setOpenManageUsersModal({ isShown: false })}
-                style={{
-                    overlay: { backgroundColor: "rgba(0,0,0,0.2)" },
-                    content: {
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        width: "90%",
-                        maxWidth: "600px",
-                        minWidth: "300px",
-                        maxHeight: "90vh",
-                        margin: "auto",
-                        padding: "20px",
-                        borderRadius: "0.5rem",
-                        overflow: "auto",
-                    },
-                }}
-                contentLabel="Manage Users"
-            >
-                <ManageUsersModal
-                    onClose={() => setOpenManageUsersModal({ isShown: false })}
-                />
-            </Modal>
-
-            {/* 🔹 Modal zarządzania karnetami */}
-            <Modal
-                isOpen={openManagePassesModal.isShown}
-                onRequestClose={() => setOpenManagePassesModal({ isShown: false })}
-                style={{
-                    overlay: { backgroundColor: "rgba(0,0,0,0.2)" },
-                    content: {
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        width: "90%",
-                        maxWidth: "600px",
-                        minWidth: "300px",
-                        maxHeight: "90vh",
-                        margin: "auto",
-                        padding: "20px",
-                        borderRadius: "0.5rem",
-                        overflow: "auto",
-                    },
-                }}
-                contentLabel="Manage Passes"
-            >
-                <ManagePassesModal
-                    onClose={() => setOpenManagePassesModal({ isShown: false })}
-                />
-            </Modal>
+            {/* Renderowanie modalów */}
+            {renderModal(ManageUsersModal, openManageUsersModal, setOpenManageUsersModal)}
+            {renderModal(ManagePassesModal, openManagePassesModal, setOpenManagePassesModal)}
+            {renderModal(ManageActivitiesModal, openManageActivitiesModal, setOpenManageActivitiesModal)}
+            {renderModal(ManageRoomsModal, openManageRoomsModal, setOpenManageRoomsModal)}
         </>
     );
 };
